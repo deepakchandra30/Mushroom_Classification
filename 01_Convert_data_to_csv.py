@@ -10,9 +10,9 @@ column_names = [
 ]
 def convert_data_to_csv():
     try:
-        df = pd.read_csv('agaricus-lepiota.data', header=None, names=column_names)
+        df = pd.read_csv('files/agaricus-lepiota.data', header=None, names=column_names)
         print("Dataset loaded successfully!")
-        df.to_csv("agaricus-lepiota.csv", index=False)
+        df.to_csv("files/agaricus-lepiota.csv", index=False)
         print("Data saved as csv file")
     except FileNotFoundError:
         print("❌ File not found. Make sure 'agaricus-lepiota.data' is in the same folder.")
