@@ -1,4 +1,11 @@
 import pandas as pd
+import os
+
+files_folder = "files"
+evaluations_folder = os.path.join(files_folder, "evaluations")
+
+# Create folders if they do not exist
+os.makedirs(evaluations_folder, exist_ok=True)
 
 column_names = [
     "class", "cap-shape", "cap-surface", "cap-color", "bruises", "odor",
