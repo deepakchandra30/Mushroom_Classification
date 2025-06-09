@@ -5,6 +5,8 @@ from sklearn.naive_bayes import GaussianNB
 from sklearn.metrics import accuracy_score, precision_score, recall_score, f1_score, confusion_matrix
 import joblib
 import pandas as pd
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 def load_data():
     X_train = joblib.load("files/X_train.pkl")
@@ -22,17 +24,45 @@ def train_the_models(X_train, X_test,y_train,y_test):
         "Decision Tree" : DecisionTreeClassifier(random_state=42)
     }
 
-    results = {}
+    results = []
 
     for name,model in models.items():
         model.fit(X_train, y_train)
         predictions = model.predict(X_test)
         acc = accuracy_score(y_test,predictions)
-        results[name] = acc
-        joblib.dump(model,f"files/{name.replace(' ','_')}.pkl")
-        print(f"{name} Accuracy: {acc:4f} ✅ Model saved to 'files/{name.replace(' ', '_')}.pkl'")
+        prec = precision_score(y_test,predictions)
+        rec = recall_score(y_test,predictions)
+        f1 = f1_score(y_test,predictions)
+        cm = confusion_matrix(y_test,predictions)
 
-    return results
+        joblib.dump(model,f"files/{name.replace(' ','_')}.pkl")
+
+        print(f"\n {name}")
+        print(f" Accuracy: {acc}")
+        print(f" Precision: {prec}")
+        print(f" Recall: {rec}")
+        print(f" F1 Score: {f1}")
+        print(f"✅ Model saved to 'files/{name.replace(' ', '_')}.pkl'")
+
+        #confusion matrix
+        plt.figure(figsize = (4,3))
+        sns.heatmap(cm, annot=True, fmt="d", cmap="Blues", xticklabels=["Edible", "Poisonous"],yticklabels=["Edible", "Poisonous"])
+        plt.title(f"Confusion matrix of {name}")
+        plt.xlabel("Predicted")
+        plt.ylabel("Actual")
+        plt.tight_layout()
+        plt.savefig(f"files/evaluations/confusion_matrix_{name.replace(" ", "_")}.png")
+        plt.close()
+
+        results.append({
+            "Model" : name,
+            "Accuracy" : acc,
+            "Precision Score" : prec,
+            "Recall" : rec,
+            "F1 Score" : f1,
+        })
+
+    return pd.DataFrame(results)
 
 
 
@@ -41,8 +71,10 @@ if __name__ == "__main__":
     X_train,X_test,y_train,y_test = load_data()
 
     print("🚀 Training the models and evaluating performance...")
-    accuracy_results = train_the_models(X_train,X_test,y_train,y_test)
+    report_df = train_the_models(X_train,X_test,y_train,y_test)
 
-    print("\n📊 Model Comparison:")
-    for name, acc in accuracy_results.items():
-        print(f"{name}: {acc:.4f}")
+    print("\n📊 Overall Model Comparison:")
+    print(report_df.to_string(index=False))
+
+    report_df.to_csv("files/evaluations/model_metrics_report.csv", index=False)
+    print("\n📁 Report saved to: files/evaluations/model_metrics_report.csv")
