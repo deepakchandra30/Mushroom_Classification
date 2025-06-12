@@ -7,30 +7,173 @@
             font-family: Arial, sans-serif;
             padding: 30px;
             background: #f0f8ff;
-
         }
         h1{
             color: #333;
         }
-        form{
+        form {
+            display: grid;
+            grid-template-columns: repeat(6, 1fr); /* 6 equal columns */
+            gap: 20px 15px; /* vertical and horizontal gaps */
             margin-bottom: 30px;
         }
-        label{
-            display: block;
-            margin-top: 10px;
+        label {
+            margin-top: 0;
+            font-weight: 600;
         }
-        select{
+        .form-group {
+            display: flex;
+            flex-direction: column;
+        }
+        select {
             padding: 5px;
+            margin-top: 4px;
         }
         table{
             border-collapse: collapse;
             width: 80%;
             margin-top: 30px;
         }
+        .predict-btn {
+            background-color: #fe4455;  /* Light red */
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            font-size: 16px;
+            font-weight: bold;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        .predict-btn:hover {
+            background-color: #ff4c4c; /* Darker red on hover */
+        }
+        .button-container {
+            text-align: center; /* centers content horizontally */
+            margin-top: 20px; /* spacing from above */
+            grid-column: 1 / -1; /* span all 6 columns */
+        }
+        .model-selection {
+            grid-column: 1 / -1; /* span all 6 columns */
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+        }
+        .model-selection label {
+            font-weight: normal;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        .model-selection input[type="checkbox"] {
+            margin-right: 6px;
+            cursor: pointer;
+        }
+
+        .recommendation-text {
+            grid-column: 1 / -1;
+            font-style: italic;
+            color: #fe4455;
+            margin-bottom: 20px;
+        }
+        footer {
+            margin-top: 50px;
+            font-size: 0.9rem;
+            color: #4f5052;
+            text-align: center;
+            border-top: 1px solid #ccc;
+            padding-top: 15px;
+            font-weight: 600;
+        }
+
     </style>
+</head>
 <body>
     <h1 style="margin: 0; font-size: 2.5rem;">🍄 Mushroom Edibility Prediction Model</h1>
     <h3 style="margin-top: 8px; margin-left: 12px; margin-right: auto; max-width: 600px; text-align: right; font-weight: normal; color: #555;">
         by Deepak Nallamothu</h3>
+
+    <form method="POST">
+        {% for feature, le in label_encoders.items() %}
+            {% if feature != 'class' %}
+                <div class="form-group">
+                    <label>{{ feature.replace('-', ' ').capitalize() }}</label>
+                    <select name="{{ feature }}" required>
+                        {% for val in le.classes_ %}
+                            <option value="{{ val }}"
+                                {% if form_data.get(feature) == val %}
+                                    selected
+                                {% endif %}
+                            >
+                                {{ feature_fullnames[feature][val] if feature in feature_fullnames and val in feature_fullnames[feature] else val }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            {% endif %}
+        {% endfor %}
+
+        <!-- Model selection checkboxes -->
+        <div class="model-selection">
+            <strong>Select model(s) for prediction:</strong>
+            {% for model in models %}
+                <label>
+                    <input type="checkbox" name="model_selection" value="{{ model }}"
+                        {% if model == 'Decision Tree' and (not form_data or model in request.form.getlist('model_selection')) %}
+                            checked
+                        {% elif model in request.form.getlist('model_selection') %}
+                            checked
+                        {% endif %}
+                    >
+                    {{ model }}
+                </label>
+            {% endfor %}
+        </div>
+
+        <div class="recommendation-text">
+            We would highly recommend to use Decision Trees and Random Forest as they give best accuracy as per the stats table below.
+        </div>
+
+        <div class="button-container">
+            <button type="submit" class="predict-btn">Predict</button>
+        </div>
+    </form>
+
+    {% if prediction %}
+    <div class="prediction">
+        <h3>🔍 Model Predictions:</h3>
+        <ul>
+            {% for model, result in prediction.items() %}
+                <li><strong>{{ model }}:</strong> {{ result|capitalize }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+    {% endif %}
+
+    <h2>📊 Model Metrics Comparison</h2>
+    <table>
+        <tr>
+            <th>Model</th>
+            <th>Accuracy</th>
+            <th>Precision</th>
+            <th>Recall</th>
+            <th>F1 Score</th>
+        </tr>
+        {% for row in metrics %}
+        <tr>
+            <td>{{ row.model }}</td>
+            <td>{{ "%.2f"|format(row.accuracy * 100) }}%</td>
+            <td>{{ "%.2f"|format(row.precision * 100) }}%</td>
+            <td>{{ "%.2f"|format(row.recall * 100) }}%</td>
+            <td>{{ "%.2f"|format(row.f1 * 100) }}%</td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <footer>
+        Please contact <a href="mailto:deepakchandra3012@gmail.com">deepakchandra3012@gmail.com</a> if you have any issues or queries.
+    </footer>
+    
 </body>
 </html>

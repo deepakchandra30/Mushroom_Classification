@@ -7,6 +7,8 @@ from pathlib import Path
 def read_csv_dropna():
     df = pd.read_csv("files/agaricus-lepiota.csv")
     df = df.dropna()
+    print(f"Rows before cleaning: {len(df)}")
+    df['stalk-root'] = df['stalk-root'].replace('?', 'missing')
     shape = df.shape
     print(f"The shape of the dataset after dropping null attributes is {shape}")
     return df
