@@ -1,8 +1,3 @@
-Thanks! Based on your project files, here's a concise and clean `README.md` written in Markdown format:
-
----
-
-````markdown
 # 🍄 Mushroom Classification
 
 This project aims to classify mushrooms as **edible** or **poisonous** using the UCI Mushroom Dataset. It follows a structured machine learning pipeline, from raw data preprocessing to model training and deployment with a basic Flask app.
@@ -38,7 +33,7 @@ The project performs the following steps:
 1. **Install dependencies**:
    ```bash
    pip install -r requirements.txt
-````
+   ```
 
 2. **Run each script in order**:
 
