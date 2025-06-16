@@ -53,7 +53,7 @@ Then, open your browser at `http://localhost:5000` and try predicting mushrooms 
 
 ## 📊 Model Performance
 
-Models like Random Forest and Decision Trees achieve high accuracy (≥98%) on the dataset due to its rich feature space and minimal noise.
+Models like Random Forest and Decision Trees achieve high accuracy (≥97%) on the dataset due to its rich feature space and minimal noise.
 
 ## 📜 Credits
 
